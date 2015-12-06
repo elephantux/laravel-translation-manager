@@ -9,6 +9,7 @@ class Controller extends BaseController
 {
     /** @var \Barryvdh\TranslationManager\Manager  */
     protected $manager;
+    protected $translateTo;
 
     public function __construct(Manager $manager)
     {
