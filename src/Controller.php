@@ -63,7 +63,11 @@ class Controller extends BaseController
 //        if ($locales instanceof Collection) {
 //            $locales = $locales->all();
 //        }
-        $locales = array_merge([$this->manager->getConfig('default_locale')], [auth()->user()->translator]);
+        if(auth()->user()->admin) {
+            $locales = $this->manager->getLocales();
+        } else {
+            $locales = array_merge([$this->manager->getConfig('default_locale')], [auth()->user()->translator]);
+        }
         return array_unique($locales);
     }
 
