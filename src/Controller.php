@@ -9,7 +9,6 @@ class Controller extends BaseController
 {
     /** @var \Barryvdh\TranslationManager\Manager  */
     protected $manager;
-    protected $translateTo;
 
     public function __construct(Manager $manager)
     {
@@ -18,7 +17,7 @@ class Controller extends BaseController
 
     public function getIndex($group = null)
     {
-        $locales = $this->manager->getLocales();
+        $locales = $this->loadLocales();
         $groups = Translation::groupBy('group');
         $excludedGroups = $this->manager->getConfig('exclude_groups');
         if($excludedGroups){
@@ -29,7 +28,7 @@ class Controller extends BaseController
         if ($groups instanceof Collection) {
             $groups = $groups->all();
         }
-        $groups = [''=>'Choose a group'] + $groups;
+        $groups = [''=>'Выберите группу'] + $groups;
         $numChanged = Translation::where('group', $group)->where('status', Translation::STATUS_CHANGED)->count();
 
 
@@ -59,11 +58,12 @@ class Controller extends BaseController
     protected function loadLocales()
     {
         //Set the default locale as the first one.
-        $locales = Translation::groupBy('locale')->lists('locale');
-        if ($locales instanceof Collection) {
-            $locales = $locales->all();
-        }
-        $locales = array_merge([config('app.locale')], $locales);
+//        $allLocales = $this->manager->getLocales();
+//        $locales = Translation::where('locale','=',auth()->user()->translator)->groupBy('locale')->lists('locale');
+//        if ($locales instanceof Collection) {
+//            $locales = $locales->all();
+//        }
+        $locales = array_merge([$this->manager->getConfig('default_locale')], [auth()->user()->translator]);
         return array_unique($locales);
     }
 
@@ -127,37 +127,5 @@ class Controller extends BaseController
         $this->manager->exportTranslations($group);
 
         return ['status' => 'ok'];
-    }
-
-    public function postAddGroup(Request $request)
-    {
-        $group = str_replace(".", '', $request->input('new-group'));
-        if ($group)
-        {
-            return redirect()->action('\Barryvdh\TranslationManager\Controller@getView',$group);
-        }
-        else
-        {
-            return redirect()->back();
-        }       
-    }
-
-    public function postAddLocale(Request $request)
-    {
-        $locales = $this->manager->getLocales();
-        $newLocale = str_replace([], '-', trim($request->input('new-locale')));
-        if (!$newLocale || in_array($newLocale, $locales)) {
-            return redirect()->back();
-        }
-        $this->manager->addLocale($newLocale);
-        return redirect()->back();
-    }
-
-    public function postRemoveLocale(Request $request)
-    {
-        foreach ($request->input('remove-locale', []) as $locale => $val) {
-            $this->manager->removeLocale($locale);
-        }
-        return redirect()->back();
     }
 }

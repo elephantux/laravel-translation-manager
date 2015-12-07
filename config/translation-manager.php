@@ -35,5 +35,6 @@ return array(
 	 *	)
 	 */
 	'exclude_groups' => array(),
+    'default_locale' => 'en'
 
 );
