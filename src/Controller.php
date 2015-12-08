@@ -66,7 +66,7 @@ class Controller extends BaseController
         if(auth()->user()->admin) {
             $locales = $this->manager->getLocales();
         } else {
-            $locales = array_merge([$this->manager->getConfig('default_locale')], [auth()->user()->translator]);
+            $locales = array_merge([auth()->user()->lang], [auth()->user()->translator]);
         }
         return array_unique($locales);
     }
